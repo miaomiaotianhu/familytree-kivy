@@ -25,11 +25,12 @@ jobs:
           source venv_app/bin/activate
           pip install buildozer Cython==0.29.36 virtualenv
 
-      - name: 执行buildozer编译debug apk
+      - name: 预同意Android SDK许可，静默执行buildozer
         run: |
           source venv_app/bin/activate
-          buildozer -v android debug
-
+          # 自动回答yes同意SDK许可，关闭交互
+          yes | buildozer -v android debug
+          
       - name: 上传生成的APK作为下载产物
         uses: actions/upload-artifact@v4
         with:
