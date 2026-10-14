@@ -1,0 +1,38 @@
+name: Build Kivy Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout 拉取仓库代码
+        uses: actions/checkout@v4
+
+      - name: 安装系统依赖
+        run: |
+          sudo apt update -y
+          sudo apt install -y git zip unzip openjdk-17-jdk python3-pip python3-venv autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev automake autopoint gettext
+          sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+          sudo update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
+
+      - name: 创建并激活Python虚拟环境，安装buildozer
+        run: |
+          python3 -m venv venv_app
+          source venv_app/bin/activate
+          pip install buildozer Cython==0.29.36 virtualenv
+
+      - name: 执行buildozer编译debug apk
+        run: |
+          source venv_app/bin/activate
+          buildozer -v android debug
+
+      - name: 上传生成的APK作为下载产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: 家谱-debug-apk
+          path: bin/*.apk
+          retention-days: 30
